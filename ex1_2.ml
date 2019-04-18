@@ -7,29 +7,39 @@ type exp =
 	| DIV of exp * exp
 	| SIGMA of exp * exp * exp
 	| INTEGRAL of exp * exp * exp
+and environmnet = (exp * exp) list
 
-
-
-let env = ref 0.0 
 let rec calculate : exp -> float
 =	
-	let x = !env in
 	fun e ->
+		calculate_in e []
+
+
+	and calculate_in : exp -> environmnet -> float
+	= fun e env ->
 	match e with
-	|X -> x
+	|X -> calculate_in (List.assoc X env) env
 	|INT n -> (float_of_int n)
 	|REAL n -> n
-	|ADD (e1,e2) -> (calculate e1 +. calculate e2)
-	|SUB (e1,e2) -> (calculate e1 -. calculate e2)
-	|MUL (e1,e2) -> (calculate e1 *. calculate e2)
-	|DIV (e1,e2) -> (calculate e1 /. calculate e2)
-	|SIGMA(e1,e2,e3) ->
-	if(calculate e1 <= calculate e2) then
-		(env := (calculate e1); (calculate e3 +. calculate (SIGMA(ADD (e1,INT 1),e2,e3))))
-	else (env := 0.0; 0.0)
+	|ADD (e1,e2) -> (calculate_in e1 env +. calculate_in e2 env)
+	|SUB (e1,e2) -> (calculate_in e1 env -. calculate_in e2 env)
+	|MUL (e1,e2) -> (calculate_in e1 env *. calculate_in e2 env)
+	|DIV (e1,e2) -> (calculate_in e1 env /. calculate_in e2 env)
+	|SIGMA(e1,e2,e3) -> 
+	let env' = (X,e1)::env in
+	if(calculate_in e1 env' <= calculate_in e2 env') then
+		calculate_in e3 env' +. calculate_in (SIGMA(ADD(e1,INT 1),e2,e3)) []
+	else 0.0
 	|INTEGRAL(e1,e2,e3) ->
-	if(calculate e1 <= calculate e2) then
-		(env := (calculate e1); calculate (MUL(e3,REAL 0.1)) +.calculate (SIGMA(ADD (e1,INT 1),e2,e3)))
-	else (env := 0.0; 0.0)
+	let env' = (X,e1)::env in
+	if(calculate_in e1 env' < calculate_in e2 env') then
+		(calculate_in e3 env' *. 0.1) +. calculate_in (INTEGRAL(ADD(e1,REAL 0.1),e2,e3)) []
+	else 0.0
 
-	calculate(INTEGRAL(REAL 1.0,REAL 10.0,SUB(MUL(X,X),INT 1)))
+	
+	
+	
+
+let test t answer =
+  let v = calculate t in
+  (abs_float (v -. answer)) <= 0.5
