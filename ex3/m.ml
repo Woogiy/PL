@@ -177,7 +177,6 @@ let value2str v =
   match v with
   | Loc n -> n
   | Int n -> n
-  | Bool b -> if (b = true) then 1 else 0
   | _ -> raise UndefinedSemantics
 
 
