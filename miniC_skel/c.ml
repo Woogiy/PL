@@ -84,13 +84,14 @@ let value2str v =
 	let remove_garbage = ref false 
 
 	(* ex2 *)
+
 	let rec make_new_mem origin_env origin_mem find_mem =
 	match origin_env with
 	| [] -> find_mem
 	| (var,loc)::tl -> 
 	let val1 = apply_mem origin_mem loc in
 	let find_mem' = (loc,val1)::find_mem in
-	make_new_mem tl find_mem' origin_mem
+	make_new_mem tl origin_mem find_mem'
 
 
 	let rec doCollection new_mem origin_mem =
@@ -108,6 +109,8 @@ let value2str v =
 		|Bool b -> collection tl origin_mem final_mem
 		|Unit -> collection tl origin_mem final_mem
 		|Procedure(varlist,e,env) -> collection tl origin_mem final_mem
+		(* let final_mem' = proc2mem env origin_mem final_mem in
+		collection tl origin_mem final_mem' *)
 		|Loc l ->
 		let val1 = (apply_mem origin_mem l) in
 		let final_mem' = (l,val1)::final_mem in collection tl origin_mem final_mem'
@@ -121,7 +124,11 @@ let value2str v =
 	| (var,loc)::tl -> let val1 = apply_mem origin_mem loc in 
 	let result' = (loc,val1)::result in loclist2mem tl origin_mem result'
 
-
+	(* and proc2mem procenv origin_mem result =
+	match procenv with
+	|[] -> result
+	|(var,loc)::tl -> let val1 = apply_mem origin_mem loc in
+	let result' = (loc,val1)::result in proc2mem tl origin_mem result' *)
 
 	let gc: env * mem -> mem
 	= fun (env, mem) ->
