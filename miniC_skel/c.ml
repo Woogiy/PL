@@ -173,14 +173,14 @@ let value2str v =
 
 	| LE (e1,e2) -> let (val1,mem') = eval e1 env mem in	
 	let (val2,mem'') = eval e2 env mem' in 
-	let sub = (val2int val1) - (val2int val2) in
-	if (sub <= 0) then (Bool true,mem'') else(Bool false,mem'')
+	let less = (val2int val1) <= (val2int val2) in
+	if less then (Bool true,mem'') else(Bool false,mem'')
 
 	| EQ (e1,e2) ->  let (val1,mem') = eval e1 env mem in	
 	let (val2,mem'') = eval e2 env mem' in 
 	(match (val1,val2) with
-		|(Int n1 , Int n2) -> if n1=n2 then (Bool true,mem'') else   (Bool false,mem'')
-		|(Bool b1,Bool b2) ->  if b1=b2 then (Bool true,mem'') else   (Bool false,mem'')
+		|(Int n1 , Int n2) -> if n1 = n2 then (Bool true,mem'') else   (Bool false,mem'')
+		|(Bool b1,Bool b2) ->  if b1 = b2 then (Bool true,mem'') else   (Bool false,mem'')
 		|(Unit,Unit) -> (Bool true,mem'') 
 		| _ -> (Bool false,mem'')
 	)
